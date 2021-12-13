@@ -1,0 +1,39 @@
+const { tenorAPI } = require('../../config.json');
+const fetch = require('node-fetch');
+
+exports.run = async (bot, message, functions) => {
+const args = message.content.split(/ +/g);
+args.shift();
+const query = args.join(" ");
+
+if(!query){
+    const promt = new MessageEmbed()
+    .setDescription(`Please provide a **Search Query** and Try Again :x:`)
+    .setColor(colorset());
+  return message.channel
+    .send(promt)
+}
+  fetch(`https://api.tenor.com/v1/random?key=${tenorAPI}&q=${query}&limit=1`)
+  .then((res) => res.json())
+  .then((json) => {
+    message.channel.send(
+      `${json.results[0].url}\n\`Requested By: ${message.author.tag}\``
+    );
+    return;
+  })
+  .catch((e) => {
+    const promt = new MessageEmbed()
+      .setDescription(`**Error** Ocurred while Searching :x:`)
+      .setColor(colorset());
+    message.channel
+      .send(promt)
+      .then((message) => message.delete({ timeout: 5000 }));
+    console.error(e);
+    return;
+  });
+}
+
+exports.help = {
+    name: "gif",
+    aliases: []
+}
